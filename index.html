@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Car Sales Pro Toolkit</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0b0b" />
+<style>
+  /* Dark SRT/Hellcat theme — clean & modern */
+  :root{
+    --bg:#050505; --panel:#0b0b0b; --muted:#9aa6b2;
+    --accent:#d42b2b; --glass: rgba(255,255,255,0.03);
+    --card-radius:14px;
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#030303 0%, #0b0b0b 100%);color:#eaf6f6;}
+  .wrap{max-width:980px;margin:18px auto;padding:18px;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,#000,#151515);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03);overflow:hidden;}
+  .logo img{max-width:100%;height:auto;display:block;}
+  h1{margin:0;font-size:20px;letter-spacing:0.4px;}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;}
+  .panel{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:var(--card-radius);border:1px solid rgba(255,255,255,0.03);}
+  .panel h2{margin:0 0 12px 0;font-size:16px;}
+  .big-number{font-size:36px;color:white;font-weight:700;}
+  .muted{color:var(--muted);font-size:13px;}
+  input, select {width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:6px}
+  label{font-size:13px;color:var(--muted);display:block;margin-top:8px;}
+  .row{display:flex;gap:8px;}
+  .btn{background:linear-gradient(180deg,#2a2a2a,#141414);border:1px solid rgba(255,255,255,0.03);color:var(--accent);padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700;}
+  .btn-ghost{background:transparent;border:1px dashed rgba(255,255,255,0.04);color:var(--muted);}
+  .result{background:var(--glass);padding:12px;border-radius:10px;margin-top:12px;}
+  .lead-card{background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);padding:10px;border-radius:10px;margin-bottom:8px;border-left:4px solid rgba(255,255,255,0.02)}
+  .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-size:13px;margin-right:8px}
+  .progress-ring{width:120px;height:120px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--accent) 0deg, rgba(255,255,255,0.03) 0deg);border-radius:999px;position:relative}
+  .progress-ring .inner{position:absolute;width:86px;height:86px;border-radius:999px;background:#070707;display:flex;align-items:center;justify-content:center;flex-direction:column}
+  .small{font-size:12px;color:var(--muted)}
+  .footer{margin-top:12px;color:var(--muted);font-size:12px;text-align:center}
+  .nav{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:12px}
+  .ob-item{padding:10px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:8px;cursor:pointer}
+  .fav{color:var(--accent);font-weight:800}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  /* small responsive */
+  @media(max-width:900px){ .grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <!-- Replace with real Hellcat/SRT logo files in assets/ folder -->
+      <img src="assets/hellcat.png" alt="Hellcat" id="logoImg" onerror="this.style.display='none'">
+    </div>
+    <div>
+      <h1>Car Sales Pro Toolkit</h1>
+      <div class="sub">Dark Edition · Hellcat / SRT styling · Offline-ready</div>
+    </div>
+    <div style="flex:1"></div>
+    <img src="assets/srt.png" alt="SRT" style="height:34px;opacity:0.95" onerror="this.style.display='none'">
+  </header>
+
+  <main class="grid">
+    <!-- LEFT: Main content -->
+    <section>
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn" data-tab="calc" onclick="showTab('calc')">⚡ Calculator</button>
+        <button class="btn btn-ghost" data-tab="leads" onclick="showTab('leads')">📇 Leads</button>
+        <button class="btn btn-ghost" data-tab="goals" onclick="showTab('goals')">🎯 Goals</button>
+        <button class="btn btn-ghost" data-tab="obs" onclick="showTab('obs')">🗣️ Objections</button>
+      </div>
+
+      <!-- Calculator -->
+      <div class="panel" id="tab-calc">
+        <h2>Quick Price & Payment Calculator</h2>
+        <label>Sale Price (USD)</label>
+        <input id="salePrice" type="number" placeholder="e.g., 35999" />
+        <label>Trade-in Value (USD)</label>
+        <input id="tradeIn" type="number" placeholder="0" />
+        <label>Down Payment (USD)</label>
+        <input id="down" type="number" placeholder="0" />
+        <label>Interest Rate (APR %)</label>
+        <input id="apr" type="number" placeholder="e.g., 6.49" step="0.01" />
+        <label>Term (months)</label>
+        <input id="term" type="number" placeholder="e.g., 60" />
+        <label>Tax %</label>
+        <input id="tax" type="number" placeholder="e.g., 7.75" step="0.01" />
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn" id="calcBtn">Calculate</button>
+          <button class="btn btn-ghost" id="showCustomer">Show to Customer</button>
+          <button class="btn btn-ghost" id="clearCalc">Clear</button>
+        </div>
+
+        <div id="calcResult" class="result" style="display:none">
+          <div class="muted">Monthly Payment</div>
+          <div class="big-number" id="monthly">—</div>
+          <div class="muted" style="margin-top:8px">Total Paid: <span id="totalPaid">—</span> · Total Interest: <span id="totalInterest">—</span></div>
+        </div>
+      </div>
+
+      <!-- Leads -->
+      <div class="panel" id="tab-leads" style="display:none">
+        <h2>Leads & Follow-ups</h2>
+        <div style="display:flex;gap:8px">
+          <input id="leadName" placeholder="Customer name" />
+          <input id="leadPhone" placeholder="Phone" />
+        </div>
+        <label>Vehicle interest / note</label>
+        <input id="leadNote" placeholder="e.g., 2019 Jeep Cherokee - interested in trade" />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="addLead">Add Lead</button>
+          <button class="btn btn-ghost" id="clearLeads">Clear All</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Your Leads</div>
+          <div id="leadsList" style="margin-top:8px;max-height:360px;overflow:auto"></div>
+        </div>
+      </div>
+
+      <!-- Goals -->
+      <div class="panel" id="tab-goals" style="display:none">
+        <h2>Sales Goal Tracker</h2>
+        <div style="display:flex;gap:8px">
+          <input id="goalUnits" type="number" placeholder="Units target (e.g., 10)" />
+          <input id="goalGross" type="number" placeholder="Gross target (USD)" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="saveGoal">Save Goal</button>
+          <button class="btn btn-ghost" id="addSaleBtn">Add Sale</button>
+          <button class="btn btn-ghost" id="resetGoal">Reset</button>
+        </div>
+
+        <div style="display:flex;gap:18px;align-items:center;margin-top:14px">
+          <div class="progress-ring" id="unitsRing" style="--pct:0deg">
+            <div class="inner"><div id="unitsCount" style="font-weight:800;font-size:20px">0</div><div class="small">Units</div></div>
+          </div>
+          <div style="flex:1">
+            <div class="muted">Gross Progress</div>
+            <div style="height:18px;background:rgba(255,255,255,0.03);border-radius:10px;margin-top:8px;overflow:hidden">
+              <div id="grossBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#ff6b6b)"></div>
+            </div>
+            <div style="margin-top:8px" class="small">Gross: $<span id="grossSoFar">0</span> / $<span id="grossTarget">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Objections -->
+      <div class="panel" id="tab-obs" style="display:none">
+        <h2>Objection Handling</h2>
+        <div class="muted">Tap an objection to view script. Tap ★ to favorite.</div>
+        <div style="margin-top:10px" id="obsList"></div>
+
+        <div style="margin-top:12px">
+          <label>Add custom script</label>
+          <input id="obsTitle" placeholder="Objection title e.g., 'Payments too high'">
+          <input id="obsScript" placeholder="Script text (short)"/>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="addObs">Add Script</button>
+            <button class="btn btn-ghost" id="clearObs">Clear All</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Quick actions / mini panels -->
+    <aside>
+      <div class="panel" style="margin-bottom:12px">
+        <h2>Quick Actions</h2>
+        <div class="controls" style="margin-top:8px">
+          <button class="btn" id="navCalc">Calculator</button>
+          <button class="btn" id="navLeads">Leads</button>
+          <button class="btn" id="navGoals">Goals</button>
+          <button class="btn" id="navObs">Objections</button>
+        </div>
+        <div style="margin-top:12px">
+          <div class="muted">Customer Mode</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="customerMode">Show last calc</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="text-align:center;margin-bottom:12px">
+        <h2>Monthly Snapshot</h2>
+        <div class="muted">Units sold</div>
+        <div style="font-size:28px;font-weight:800;margin-top:6px" id="snapshotUnits">0</div>
+        <div class="muted" style="margin-top:6px">Gross</div>
+        <div style="font-size:20px;font-weight:700;margin-top:6px" id="snapshotGross">$0</div>
+      </div>
+
+      <div class="panel">
+        <h2>Install</h2>
+        <div class="muted">To add to your iPhone Home Screen:</div>
+        <ol class="muted">
+          <li>Open this page in Safari.</li>
+          <li>Tap <strong>Share → Add to Home Screen</strong>.</li>
+          <li>Tap Add — app will open standalone.</li>
+        </ol>
+        <div class="footer">All data saved locally on your device.</div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="footer" style="margin-top:18px">Made for dealership pros • Dark Hellcat theme</div>
+</div>
+
+<script>
+/* =========================
+   Basic App logic (localStorage)
+   ========================= */
+const $ = id => document.getElementById(id);
+let storage = {
+  leads: JSON.parse(localStorage.getItem('csp_leads')||'[]'),
+  goals: JSON.parse(localStorage.getItem('csp_goals')||'{"units":0,"grossTarget":0,"gross":0,"unitsSold":0}'),
+  obs: JSON.parse(localStorage.getItem('csp_obs')||'[]'),
+  lastCalc: null
+};
+
+function saveStorage(){ localStorage.setItem('csp_leads', JSON.stringify(storage.leads)); localStorage.setItem('csp_goals', JSON.stringify(storage.goals)); localStorage.setItem('csp_obs', JSON.stringify(storage.obs)); }
+
+function showTab(t){
+  ['calc','leads','goals','obs'].forEach(x => {
+    $('tab-'+x).style.display = (x===t)?'block':'none';
+  });
+}
+showTab('calc');
+
+// -------- Calculator -----------
+$('calcBtn').addEventListener('click', ()=> {
+  const sale = parseFloat($('salePrice').value)||0;
+  const trade = parseFloat($('tradeIn').value)||0;
+  const down = parseFloat($('down').value)||0;
+  const apr = parseFloat($('apr').value)||0;
+  const term = parseInt($('term').value)||0;
+  const taxPct = parseFloat($('tax').value)||0;
+  if(term<=0){ alert('Enter term in months'); return; }
+  const taxable = Math.max(0, sale - trade);
+  const taxAmount = taxable * (taxPct/100);
+  const financed = Math.max(0, taxable + taxAmount - down);
+  const monthly = calcMonthly(financed, apr/100, term);
+  const totalPaid = (monthly * term) + down;
+  const totalInterest = (monthly * term) - financed;
+  $('monthly').textContent = '$' + numberWithCommas(monthly.toFixed(2));
+  $('totalPaid').textContent = '$' + numberWithCommas(totalPaid.toFixed(2));
+  $('totalInterest').textContent = '$' + numberWithCommas(totalInterest.toFixed(2));
+  $('calcResult').style.display = 'block';
+  storage.lastCalc = {sale, trade, down, apr, term, taxPct, monthly:monthly.toFixed(2), totalPaid: totalPaid.toFixed(2)};
+  localStorage.setItem('csp_lastcalc', JSON.stringify(storage.lastCalc));
+});
+
+$('showCustomer').addEventListener('click', ()=> {
+  const c = JSON.parse(localStorage.getItem('csp_lastcalc')||'null');
+  if(!c){ alert('No calculation yet'); return; }
+  // customer view popup
+  const w = window.open('','_blank','noopener');
+  w.document.write('<body style="background:#000;color:#fff;font-family:system-ui;padding:24px"><h1 style="color:var(--accent)">Monthly</h1><div style="font-size:44px;font-weight:800">$'+c.monthly+'</div><div style="margin-top:12px">Term: '+c.term+' months · APR: '+c.apr+'%</div></body>');
+});
+
+$('clearCalc').addEventListener('click', ()=> {
+  ['salePrice','tradeIn','down','apr','term','tax'].forEach(id=>$(id).value='');
+  $('calcResult').style.display='none';
+  storage.lastCalc = null; localStorage.removeItem('csp_lastcalc');
+});
+
+function calcMonthly(principal, rate, months){
+  if(rate===0) return principal/months;
+  const mrate = rate/12;
+  const pow = Math.pow(1+mrate, months);
+  return (principal * mrate * pow)/(pow-1);
+}
+function numberWithCommas(x){ return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+// -------- Leads -----------
+function renderLeads(){
+  const container = $('leadsList'); container.innerHTML='';
+  storage.leads.sort((a,b)=> new Date(a.follow||'2100') - new Date(b.follow||'2100'));
+  storage.leads.forEach((l,idx)=>{
+    const div = document.createElement('div'); div.className='lead-card';
+    div.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(l.name||'—')}</strong><div class="muted">${escapeHtml(l.note||'')}</div></div><div class="small">${l.phone||''}</div></div>
+      <div style="margin-top:8px"><span class="chip">${l.status||'New'}</span><span class="small muted">Follow: ${l.follow||'—'}</span>
+      <div style="margin-top:8px;display:flex;gap:8px"><button class="btn btn-ghost" onclick="markLead(${idx},'contacted')">Mark Contacted</button><button class="btn btn-ghost" onclick="markLead(${idx},'sold')">Mark Sold</button><button class="btn btn-ghost" onclick="deleteLead(${idx})">Delete</button></div></div>`;
+    container.appendChild(div);
+  });
+}
+function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+$('addLead').addEventListener('click', ()=>{
+  const name = $('leadName').value.trim(); const phone = $('leadPhone').value.trim(); const note = $('leadNote').value.trim();
+  if(!name && !phone){ alert('Add at least a name or phone'); return; }
+  storage.leads.push({name,phone,note,follow:null,status:'New',created:new Date().toISOString()});
+  $('leadName').value=''; $('leadPhone').value=''; $('leadNote').value='';
+  saveStorage(); renderLeads();
+});
+function markLead(i, status){ storage.leads[i].status=status; saveStorage(); renderLeads(); }
+function deleteLead(i){ storage.leads.splice(i,1); saveStorage(); renderLeads(); }
+$('clearLeads').addEventListener('click', ()=>{ if(confirm('Clear ALL leads?')){ storage.leads=[]; saveStorage(); renderLeads(); }});
+
+// -------- Goals -----------
+function renderGoals(){
+  const g = storage.goals || {units:0,grossTarget:0,gross:0,unitsSold:0};
+  $('unitsCount').textContent = g.unitsSold||0;
+  $('snapshotUnits').textContent = g.unitsSold||0;
+  $('snapshotGross').textContent = '$' + numberWithCommas((g.gross||0).toFixed(0));
+  $('grossSoFar').textContent = numberWithCommas((g.gross||0).toFixed(0));
+  $('grossTarget').textContent = numberWithCommas((g.grossTarget||0).toFixed(0));
+  const pct = g.grossTarget>0? Math.min(100, Math.round((g.gross/g.grossTarget)*100)) : 0;
+  $('grossBar').style.width = pct + '%';
+}
+$('saveGoal').addEventListener('click', ()=>{
+  storage.goals.units = parseInt($('goalUnits').value)||0;
+  storage.goals.grossTarget = parseFloat($('goalGross').value)||0;
+  saveStorage(); renderGoals();
+});
+$('addSaleBtn').addEventListener('click', ()=>{
+  const sale = prompt('Enter gross from sale (USD):'); if(!sale) return;
+  const val = parseFloat(sale)||0;
+  storage.goals.gross = (storage.goals.gross||0) + val;
+  storage.goals.unitsSold = (storage.goals.unitsSold||0) + 1;
+  saveStorage(); renderGoals(); renderLeads();
+});
+$('resetGoal').addEventListener('click', ()=>{ if(confirm('Reset goals & progress?')){ storage.goals={units:0,grossTarget:0,gross:0,unitsSold:0}; saveStorage(); renderGoals(); }});
+
+// -------- Objections -----------
+const defaultObs = [
+  {title:'Payments too high', text:'We can adjust term/down or look at other programs — what monthly would work for you?', fav:false},
+  {title:'Need to think about it', text:'Totally fair — what’s your biggest remaining concern? If I can remove that, would you be ready?', fav:false},
+  {title:'Price is too high', text:'We price competitively and the vehicle includes X/Y — if price is the blocker I can check with manager.', fav:false}
+];
+if(storage.obs.length===0){ storage.obs = defaultObs.slice(); saveStorage(); }
+function renderObs(){
+  const c = $('obsList'); c.innerHTML='';
+  storage.obs.forEach((o,i)=>{
+    const div = document.createElement('div'); div.className='ob-item';
+    div.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong ${o.fav? 'class="fav"':''}>${escapeHtml(o.title)}</strong><div class="small muted">${escapeHtml(o.text)}</div></div><div><button class="btn btn-ghost" onclick="toggleFav(${i})">★</button><button class="btn btn-ghost" onclick="copyObs(${i})">Copy</button></div></div>`;
+    c.appendChild(div);
+  });
+}
+window.toggleFav = function(i){ storage.obs[i].fav = !storage.obs[i].fav; saveStorage(); renderObs(); }
+window.copyObs = function(i){ navigator.clipboard?.writeText(storage.obs[i].text).then(()=>alert('Copied to clipboard')); }
+
+// add custom
+$('addObs').addEventListener('click', ()=>{
+  const t = $('obsTitle').value.trim(); const s = $('obsScript').value.trim();
+  if(!t || !s) { alert('Title + script required'); return; }
+  storage.obs.unshift({title:t,text:s,fav:true});
+  $('obsTitle').value=''; $('obsScript').value='';
+  saveStorage(); renderObs();
+});
+$('clearObs').addEventListener('click', ()=>{ if(confirm('Clear all scripts?')){ storage.obs=[]; saveStorage(); renderObs(); }});
+
+// nav buttons
+$('navCalc').addEventListener('click', ()=> showTab('calc'));
+$('navLeads').addEventListener('click', ()=> showTab('leads'));
+$('navGoals').addEventListener('click', ()=> showTab('goals'));
+$('navObs').addEventListener('click', ()=> showTab('obs'));
+$('customerMode').addEventListener('click', ()=> { const c=JSON.parse(localStorage.getItem('csp_lastcalc')||'null'); if(!c) return alert('No calc'); const w=window.open('','_blank','noopener'); w.document.write(`<body style="background:#000;color:#fff;font-family:system-ui;padding:30px"><h1 style="color:${'#d42b2b'}">$${c.monthly}</h1><div style="margin-top:8px">Term: ${c.term} months</div></body>`); });
+
+// init
+renderLeads(); renderGoals(); renderObs();
+
+// register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(e => console.log('sw err',e));
+}
+</script>
+</body>
+</html>
